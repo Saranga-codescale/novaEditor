@@ -76,5 +76,3 @@ yarn-error.log
 # build
 *.apk
 my-release-key-base64.txt
-codemagic.yaml
-build.sh
