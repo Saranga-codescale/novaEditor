@@ -1,25 +1,37 @@
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
-import CodeEditor from 'react-native-monacco-editor';
+import React, {useRef, useEffect} from 'react';
+import {SafeAreaView, StyleSheet} from 'react-native';
+import {WebView} from 'react-native-webview';
 
-const MainScreen: React.FC = () => {
-  const {width, height} = useWindowDimensions();
+const MainScreen = () => {
+  const webViewRef = useRef<WebView>(null);
+
+  // Send initial value to the editor
+  useEffect(() => {
+    if (webViewRef.current) {
+      webViewRef.current.postMessage(
+        JSON.stringify({type: 'setValue', payload: '// Start coding here'}),
+      );
+    }
+  }, []);
+
+  // Handle messages from the WebView
+  const handleMessage = (event: {nativeEvent: {data: string}}) => {
+    const {type, payload} = JSON.parse(event.nativeEvent.data);
+    if (type === 'getValue') {
+      console.log('Editor value:', payload);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={[styles.editorContainer, {width, height}]}>
-        <CodeEditor
-          value="// Start coding here"
-          language="javascript"
-          theme="vs-dark"
-          style={[styles.editor, {width, height}]}
-        />
-      </View>
+      <WebView
+        ref={webViewRef}
+        source={require('./monaco.html')}
+        onMessage={handleMessage}
+        style={styles.editor}
+        originWhitelist={['*']}
+        javaScriptEnabled={true}
+      />
     </SafeAreaView>
   );
 };
@@ -29,11 +41,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  editorContainer: {
-    flex: 1,
-  },
   editor: {
     flex: 1,
+    height: '100%',
+    width: '100%',
   },
 });
 
