@@ -1,0 +1,94 @@
+diff --git a/node_modules/react-native-monacco-editor/index.js b/node_modules/react-native-monacco-editor/index.js
+index eb5ea27..7edbb1f 100644
+--- a/node_modules/react-native-monacco-editor/index.js
++++ b/node_modules/react-native-monacco-editor/index.js
+@@ -1,16 +1,25 @@
+-import React, {useRef, useState} from 'react';
+-import {Button, StyleSheet, View, Text} from 'react-native';
++import React, {useRef, useState, useEffect} from 'react';
++import {Button, StyleSheet, View, Text, ScrollView} from 'react-native';
+ import WebView from 'react-native-webview';
+ 
+-const CodeEditor = () => {
++const CodeEditor = ({
++  language = 'javascript',
++  theme = 'vs-dark',
++  tabSize = 2,
++  readOnly = false,
++  diffMode = false,
++  onFocus,
++  onBlur,
++  onMount,
++  onUnmount,
++}) => {
+   const webViewRef = useRef(null);
+-
+   const [messages, setMessages] = useState([]);
+ 
+   const onMessage = event => {
+     const data = JSON.parse(event.nativeEvent.data);
+     if (data.command === 'consoleLog') {
+-      setMessages(prevMessages => [...prevMessages,data.data].slice(-5));
++      setMessages(prevMessages => [...prevMessages, data.data].slice(-5));
+       console.log('WebView console.log:', data.data);
+     }
+   };
+@@ -28,6 +37,7 @@ const CodeEditor = () => {
+               <meta name="viewport" content="width=device-width, initial-scale=1.0">
+               <title>Monaco Editor</title>
+               <script src="https://unpkg.com/monaco-editor@0.27.0/min/vs/loader.js"></script>
++              <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.5/brython.min.js"></script>
+               <style>
+                 body, html, #editor {
+                   margin: 0;
+@@ -130,8 +140,17 @@ const CodeEditor = () => {
+                       ' ',
+                       'helloWorld();'
+                     ].join('\\n'),
+-                    language: 'javascript',
+-                    theme: 'vs-dark'
++                     language: '${language}',
++                    theme: '${theme}',
++                    readOnly: ${readOnly},
++                    automaticLayout: true,
++                    tabSize: ${tabSize},
++                    diffMode: ${diffMode},
++                    onMount : ${onMount},
++                    onUnmount : ${onUnmount},
++                    onFocus : ${onFocus},
++                    onBlur : ${onBlur}
++
+                   });
+ 
+                   const originalConsoleLog = console.log;
+@@ -216,18 +235,20 @@ const CodeEditor = () => {
+ 
+       <View style={styles.messagesContainer}>
+         <Text style={styles.consoleEditorHeader}>Output</Text>
+-        {messages.map((message, index) => (
+-          <Text key={index} style={styles.messageText}>
+-            {message}
+-          </Text>
+-        ))}
++        <ScrollView>
++          {messages.map((message, index) => (
++            <Text key={index} style={styles.messageText}>
++              {message}
++            </Text>
++          ))}
++        </ScrollView>
+       </View>
++
+       <Button
+-      color="orange"
+-        onPress={() => {
+-          setMessages([]);
+-        }}
+-        title=" Clear Console"></Button>
++        color="orange"
++        onPress={() => setMessages([])}
++        title="Clear Console"
++      />
+     </View>
+   );
+ };

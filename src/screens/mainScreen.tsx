@@ -4,6 +4,7 @@ import {
   StyleSheet,
   View,
   useWindowDimensions,
+  StatusBar,
 } from 'react-native';
 import CodeEditor from 'react-native-monacco-editor';
 
@@ -12,12 +13,14 @@ const MainScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
       <View style={[styles.editorContainer, {width, height}]}>
         <CodeEditor
           value="// Start coding here"
           language="javascript"
           theme="vs-dark"
           style={[styles.editor, {width, height}]}
+          options={{scrollBeyondLastLine: true}}
         />
       </View>
     </SafeAreaView>
