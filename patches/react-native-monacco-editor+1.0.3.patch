@@ -1,12 +1,12 @@
 diff --git a/node_modules/react-native-monacco-editor/index.js b/node_modules/react-native-monacco-editor/index.js
-index eb5ea27..7bb6644 100644
+index eb5ea27..771474b 100644
 --- a/node_modules/react-native-monacco-editor/index.js
 +++ b/node_modules/react-native-monacco-editor/index.js
 @@ -1,20 +1,35 @@
 -import React, {useRef, useState} from 'react';
 -import {Button, StyleSheet, View, Text} from 'react-native';
 +import React, {useRef, useState, useEffect} from 'react';
-+import {Button, StyleSheet, View, Text, ScrollView} from 'react-native';
++import {TouchableOpacity, StyleSheet, View, Text, ScrollView} from 'react-native';
  import WebView from 'react-native-webview';
  
 -const CodeEditor = () => {
@@ -98,7 +98,7 @@ index eb5ea27..7bb6644 100644
                  });
                </script>
              </body>
-@@ -216,18 +252,20 @@ const CodeEditor = () => {
+@@ -216,18 +252,18 @@ const CodeEditor = () => {
  
        <View style={styles.messagesContainer}>
          <Text style={styles.consoleEditorHeader}>Output</Text>
@@ -115,17 +115,44 @@ index eb5ea27..7bb6644 100644
 +          ))}
 +        </ScrollView>
        </View>
-+
-       <Button
+-      <Button
 -      color="orange"
 -        onPress={() => {
 -          setMessages([]);
 -        }}
 -        title=" Clear Console"></Button>
-+        color="orange"
-+        onPress={() => setMessages([])}
-+        title="Clear Console"
-+      />
++
++<TouchableOpacity style={styles.clearButton} onPress={() => setMessages([])}>
++  <Text style={styles.clearButtonText}>Clear Console</Text>
++</TouchableOpacity>
      </View>
    );
  };
+@@ -261,6 +297,26 @@ const styles = StyleSheet.create({
+     fontWeight: 'bold',
+     marginBottom: 15,
+   },
++   clearButton: {
++    backgroundColor: 'orange',
++    paddingVertical: 12,
++    paddingHorizontal: 20,
++    borderRadius: 8,
++    alignItems: 'center',
++    justifyContent: 'center',
++    marginVertical: 10,
++    alignSelf: 'center',
++    shadowColor: '#000',
++    shadowOffset: { width: 0, height: 2 },
++    shadowOpacity: 0.2,
++    shadowRadius: 2,
++    elevation: 3,
++  },
++  clearButtonText: {
++    color: 'white',
++    fontSize: 16,
++    fontWeight: 'bold',
++  },
+ });
+ 
+ module.exports = CodeEditor;
+\ No newline at end of file
