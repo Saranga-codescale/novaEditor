@@ -1,12 +1,12 @@
 diff --git a/node_modules/react-native-monacco-editor/index.js b/node_modules/react-native-monacco-editor/index.js
-index eb5ea27..7edbb1f 100644
+index eb5ea27..771474b 100644
 --- a/node_modules/react-native-monacco-editor/index.js
 +++ b/node_modules/react-native-monacco-editor/index.js
-@@ -1,16 +1,25 @@
+@@ -1,20 +1,35 @@
 -import React, {useRef, useState} from 'react';
 -import {Button, StyleSheet, View, Text} from 'react-native';
 +import React, {useRef, useState, useEffect} from 'react';
-+import {Button, StyleSheet, View, Text, ScrollView} from 'react-native';
++import {TouchableOpacity, StyleSheet, View, Text, ScrollView} from 'react-native';
  import WebView from 'react-native-webview';
  
 -const CodeEditor = () => {
@@ -33,7 +33,17 @@ index eb5ea27..7edbb1f 100644
        console.log('WebView console.log:', data.data);
      }
    };
-@@ -28,6 +37,7 @@ const CodeEditor = () => {
+ 
++    useEffect(() => {
++    setTimeout(() => {
++      webViewRef.current?.postMessage(JSON.stringify({ command: 'focusEditor' }));
++    }, 1000); // Delay slightly to ensure WebView is ready
++  }, []);
++
+   return (
+     <View style={styles.container}>
+       <WebView
+@@ -28,6 +43,7 @@ const CodeEditor = () => {
                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                <title>Monaco Editor</title>
                <script src="https://unpkg.com/monaco-editor@0.27.0/min/vs/loader.js"></script>
@@ -41,7 +51,7 @@ index eb5ea27..7edbb1f 100644
                <style>
                  body, html, #editor {
                    margin: 0;
-@@ -130,8 +140,17 @@ const CodeEditor = () => {
+@@ -130,10 +146,21 @@ const CodeEditor = () => {
                        ' ',
                        'helloWorld();'
                      ].join('\\n'),
@@ -60,8 +70,35 @@ index eb5ea27..7edbb1f 100644
 +
                    });
  
++                
++
                    const originalConsoleLog = console.log;
-@@ -216,18 +235,20 @@ const CodeEditor = () => {
+                   console.log = function() {
+                     const args = Array.from(arguments).map(arg => JSON.stringify(arg));
+@@ -155,6 +182,7 @@ const CodeEditor = () => {
+                   window.editor.focus();
+                 }
+                 
++
+                 // Update click event listeners for each button
+                 document.getElementById('redoButton').addEventListener('click', function() {
+                   window.editor.trigger('', 'redo', '');
+@@ -203,6 +231,14 @@ const CodeEditor = () => {
+                       console.error(error);
+                     }
+                   });
++
++                   // Listen for messages from React Native
++                  window.addEventListener('message', function(event) {
++                    const { command } = JSON.parse(event.data);
++                    if (command === 'focusEditor') {
++                      window.editor.focus();
++                    }
++                  });
+                 });
+               </script>
+             </body>
+@@ -216,18 +252,18 @@ const CodeEditor = () => {
  
        <View style={styles.messagesContainer}>
          <Text style={styles.consoleEditorHeader}>Output</Text>
@@ -78,17 +115,44 @@ index eb5ea27..7edbb1f 100644
 +          ))}
 +        </ScrollView>
        </View>
-+
-       <Button
+-      <Button
 -      color="orange"
 -        onPress={() => {
 -          setMessages([]);
 -        }}
 -        title=" Clear Console"></Button>
-+        color="orange"
-+        onPress={() => setMessages([])}
-+        title="Clear Console"
-+      />
++
++<TouchableOpacity style={styles.clearButton} onPress={() => setMessages([])}>
++  <Text style={styles.clearButtonText}>Clear Console</Text>
++</TouchableOpacity>
      </View>
    );
  };
+@@ -261,6 +297,26 @@ const styles = StyleSheet.create({
+     fontWeight: 'bold',
+     marginBottom: 15,
+   },
++   clearButton: {
++    backgroundColor: 'orange',
++    paddingVertical: 12,
++    paddingHorizontal: 20,
++    borderRadius: 8,
++    alignItems: 'center',
++    justifyContent: 'center',
++    marginVertical: 10,
++    alignSelf: 'center',
++    shadowColor: '#000',
++    shadowOffset: { width: 0, height: 2 },
++    shadowOpacity: 0.2,
++    shadowRadius: 2,
++    elevation: 3,
++  },
++  clearButtonText: {
++    color: 'white',
++    fontSize: 16,
++    fontWeight: 'bold',
++  },
+ });
+ 
+ module.exports = CodeEditor;
+\ No newline at end of file
